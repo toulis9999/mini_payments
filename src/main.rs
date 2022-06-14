@@ -46,7 +46,7 @@ fn main() -> Result<(), String> {
 			}
 			Err(SpamReaderError::IOError(e)) => match e.kind() {
 				std::io::ErrorKind::Interrupted => continue, //retry according to https://doc.rust-lang.org/std/io/trait.Read.html#tymethod.read
-				_ => return Err("Terminating.. unrecoverable IO error".to_owned()),
+				_ => return Err(format!("Terminating.. unrecoverable IO error: [{}]", e)),
 			},
 			Ok(buf) => {
 				if buf.is_empty() {
