@@ -42,14 +42,12 @@ fn main() -> Result<(), String> {
 					"Terminating... incorrect buffer beyond Tolerance threshold detected!".to_owned(),
 				)
 			}
-			Err(SpamReaderError::IOError(e)) => match e.kind() {
+			Err(SpamReaderError::IOError(e)) => match e {
 				std::io::ErrorKind::Interrupted => continue, //retry according to https://doc.rust-lang.org/std/io/trait.Read.html#tymethod.read
 				_ => return Err(format!("Terminating... Irrecoverable IO error: [{}]", e)),
 			},
+			Err(SpamReaderError::EOFReached) => break,
 			Ok(buf) => {
-				if buf.is_empty() {
-					break;
-				}
 				let tr_str = skip_fail!(std::str::from_utf8(buf), buf);
 				let tr = skip_fail!(PaymentsTransaction::from_str(tr_str), tr_str);
 				skip_fail!(pr.process_transaction(tr), tr_str);
