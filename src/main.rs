@@ -1,7 +1,6 @@
 #![doc(html_no_source)]
 
 use std::env;
-use std::io::BufReader;
 use std::num::NonZeroUsize;
 use std::str::FromStr;
 extern crate lib;
