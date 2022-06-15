@@ -19,7 +19,7 @@ macro_rules! skip_fail {
 		match $res {
 			Ok(val) => val,
 			Err(e) => {
-				eprintln!("Skipping transaction [{:?}]. Error [{:?}] occured", $id, e);
+				eprintln!("Skipping transaction [{:?}]. Error [{:?}]", $id, e);
 				continue;
 			}
 		}
@@ -30,11 +30,9 @@ macro_rules! skip_fail {
 fn main() -> Result<(), String> {
 	let input_file = env::args().nth(1).ok_or("No input file detected")?;
 	let f = std::fs::File::open(input_file).map_err(|_| "File not found!")?;
-	let mut sp = SpamTolerantReader::new(
-		BufReader::new(f),
-		b'\n',
-		NonZeroUsize::new(MAX_TRANSACTION_LEN * 5).unwrap(),
-	);
+	let tolerance =
+		NonZeroUsize::new(MAX_TRANSACTION_LEN * 5).ok_or("Zero bytes spam tolerance is not allowed")?;
+	let mut sp = SpamTolerantReader::new(f, b'\n', tolerance);
 	let mut pr = PaymentsProcessor::default();
 	loop {
 		let n = sp.get_next();
@@ -46,7 +44,7 @@ fn main() -> Result<(), String> {
 			}
 			Err(SpamReaderError::IOError(e)) => match e.kind() {
 				std::io::ErrorKind::Interrupted => continue, //retry according to https://doc.rust-lang.org/std/io/trait.Read.html#tymethod.read
-				_ => return Err(format!("Terminating.. unrecoverable IO error: [{}]", e)),
+				_ => return Err(format!("Terminating... Irrecoverable IO error: [{}]", e)),
 			},
 			Ok(buf) => {
 				if buf.is_empty() {

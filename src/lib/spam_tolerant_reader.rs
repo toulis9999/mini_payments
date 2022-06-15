@@ -1,4 +1,4 @@
-use std::io::BufRead;
+use std::io::{BufRead, BufReader, Read};
 use std::num::NonZeroUsize;
 
 //nightly feature 😞
@@ -8,9 +8,9 @@ use std::num::NonZeroUsize;
 //so the adaptor patternt is not fully realised 😞
 
 #[derive(Debug)]
-pub struct SpamTolerantReader<T: BufRead> {
+pub struct SpamTolerantReader<T: Read> {
 	#[doc(hidden)]
-	reader: T,
+	reader: BufReader<T>,
 	aux: Vec<u8>,
 	delimiter: u8,
 }
@@ -21,10 +21,10 @@ pub enum ErrorKind {
 	ToleranceExceeded,
 }
 
-impl<T: BufRead> SpamTolerantReader<T> {
+impl<T: Read> SpamTolerantReader<T> {
 	pub fn new(reader: T, delimiter: u8, tolerance: NonZeroUsize) -> Self {
 		SpamTolerantReader {
-			reader,
+			reader: BufReader::new(reader),
 			aux: vec![0; tolerance.into()],
 			delimiter,
 		}
