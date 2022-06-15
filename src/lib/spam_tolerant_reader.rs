@@ -10,6 +10,9 @@ use std::num::NonZeroUsize;
 //I could generalise the reader member to be a Box<dyn Read> and abstract away the type of reader
 //but opted not to, due to speed of implementation & perf considerations
 
+/// A [Read] adapter that allows querying chunks of bytes separated by a byte delimiter (returned without the delimiter)
+/// if a delimiter is not found after a a specified number of bytes, then this reader "fuses" and returns [ErrorKind::ToleranceExceeded]
+/// every time it is queried.
 #[derive(Debug)]
 pub struct SpamTolerantReader<T: Read> {
 	#[doc(hidden)]
@@ -44,6 +47,10 @@ impl<T: Read> SpamTolerantReader<T> {
 }
 
 impl<T: Read> SpamTolerantReader<T> {
+	/// This function will return the next chunk extracted from the internal [Read]er,\
+	/// An [ErrorKind::ToleranceExceeded] if the tolerance limit is exceeded,\
+	/// an [ErrorKind::EOFReached] if the internal reader signals an EOF\
+	/// or an [ErrorKind::IOError] propagated from internal reader.
 	pub fn get_next(&mut self) -> Result<&[u8], ErrorKind> {
 		macro_rules! get_read_buf {
 			() => {
@@ -70,6 +77,7 @@ impl<T: Read> SpamTolerantReader<T> {
 			Err(ErrorKind::ToleranceExceeded)
 		} else {
 			//no delimiter found and buf is smaller than aux
+			//consume reader until EOF or delimiter is found or aux buffer is filled
 			loop {
 				let buf_len = buf.len();
 				self.aux.extend_from_slice(buf);
@@ -87,7 +95,6 @@ impl<T: Read> SpamTolerantReader<T> {
 				}
 				if buf.len() > self.aux.capacity() - self.aux.len() {
 					self.limit_tripped = true;
-					dbg!("YOLO");
 					return Err(ErrorKind::ToleranceExceeded);
 				}
 			}

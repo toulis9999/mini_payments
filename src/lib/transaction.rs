@@ -14,7 +14,7 @@ pub enum TransactionPayload {
 	ChargeBack,
 }
 
-/// Describes A full payment transaction
+/// Describes a payment transaction
 #[derive(Debug, PartialEq)]
 pub struct PaymentsTransaction {
 	pub client: u16,
