@@ -171,7 +171,7 @@ fn simple_subtraction_works_ok() {
 	let res1 = FixedDecimal::from_str("3.01").unwrap();
 	let res2 = FixedDecimal::from_str("1.95").unwrap();
 	let res = res1.checked_sub(res2).unwrap();
-	assert_eq!(res.get_decimal_part(), (6, 1));
+	assert_eq!(res.get_decimal_part(), (600, 1));
 	assert_eq!(res.get_whole_part(), 1);
 	assert_eq!(res.to_string(), "1.06");
 }
@@ -187,7 +187,7 @@ fn zero_with_4rd_decimal_nonzero_only_is_ok_invariants_hold() {
 #[test]
 fn zero_with_3rd_decimal_nonzero_only_is_ok_invariants_hold() {
 	let res = FixedDecimal::from_str("0.0010").unwrap();
-	assert_eq!(res.get_decimal_part(), (1, 2));
+	assert_eq!(res.get_decimal_part(), (10, 2));
 	assert_eq!(res.get_whole_part(), 0);
 	assert_eq!(res.to_string(), "0.001");
 }
@@ -195,7 +195,7 @@ fn zero_with_3rd_decimal_nonzero_only_is_ok_invariants_hold() {
 #[test]
 fn zero_with_2rd_decimal_nonzero_only_is_ok_invariants_hold() {
 	let res = FixedDecimal::from_str("0.0100").unwrap();
-	assert_eq!(res.get_decimal_part(), (1, 1));
+	assert_eq!(res.get_decimal_part(), (100, 1));
 	assert_eq!(res.get_whole_part(), 0);
 	assert_eq!(res.to_string(), "0.01");
 }
@@ -211,7 +211,7 @@ fn nonzero_whole_with_4rd_decimal_nonzero_only_is_ok_invariants_hold() {
 #[test]
 fn nonzero_whole_with_3rd_decimal_nonzero_only_is_ok_invariants_hold() {
 	let res = FixedDecimal::from_str("321.0010").unwrap();
-	assert_eq!(res.get_decimal_part(), (1, 2));
+	assert_eq!(res.get_decimal_part(), (10, 2));
 	assert_eq!(res.get_whole_part(), 321);
 	assert_eq!(res.to_string(), "321.001");
 }
@@ -219,7 +219,7 @@ fn nonzero_whole_with_3rd_decimal_nonzero_only_is_ok_invariants_hold() {
 #[test]
 fn nonzero_whole_with_2rd_decimal_nonzero_only_is_ok_invariants_hold() {
 	let res = FixedDecimal::from_str("321.0100").unwrap();
-	assert_eq!(res.get_decimal_part(), (1, 1));
+	assert_eq!(res.get_decimal_part(), (100, 1));
 	assert_eq!(res.get_whole_part(), 321);
 	assert_eq!(res.to_string(), "321.01");
 }

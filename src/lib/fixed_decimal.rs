@@ -35,9 +35,12 @@ impl std::fmt::Display for FixedDecimal {
 	/// even for whole numbers according to spec
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		write!(f, "{}.", self.get_whole_part())?;
-		let (dec, i) = self.get_decimal_part();
+		let (mut dec, i) = self.get_decimal_part();
 		for _ in 0..i {
 			write!(f, "0")?;
+		}
+		while dec != 0 && dec % 10 == 0 {
+			dec /= 10;
 		}
 		write!(f, "{}", dec)
 	}
@@ -95,16 +98,24 @@ impl FixedDecimal {
 		(self.data - self.data % DIVISOR) / DIVISOR
 	}
 
+	/// returns the decimal digits plus the number of leading zeroes
+	/// ```
+	/// use std::str::FromStr;
+	/// use lib::FixedDecimal;
+	///
+	/// let tr = FixedDecimal::from_str("100.0").unwrap();
+	/// assert_eq!(tr.get_decimal_part(), (0,0));
+	/// let tr = FixedDecimal::from_str("100.1").unwrap();
+	/// assert_eq!(tr.get_decimal_part(), (1000,0));
+	/// let tr = FixedDecimal::from_str("1.020").unwrap();
+	/// assert_eq!(tr.get_decimal_part(), (200,1));
+	/// ```
 	pub fn get_decimal_part(&self) -> (UnderLying, usize) {
-		let mut d = self.data % DIVISOR;
+		let d = self.data % DIVISOR;
 		if d == 0 {
 			return (0, 0);
 		}
 		let mut div = DIVISOR;
-		while d % 10 == 0 {
-			d /= 10;
-			div /= 10;
-		}
 		let mut leading_zeroes = 0;
 		while d / div == 0 {
 			leading_zeroes += 1;
