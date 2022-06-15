@@ -25,7 +25,7 @@ fn reader_with_consecutive_delimiters_returns_empty_slices() {
 
 #[test]
 fn queries_after_tolerance_exceeded_result_in_tolerance_exceeded_err() {
-	let buf = "qqqe   qwe  qwee qq qq qq".as_bytes();
+	let buf = "qqqee   qwe  qwee qq qq qq".as_bytes();
 	let mut spr = SpamTolerantReader::new(buf, b' ', NonZeroUsize::new(4).unwrap());
 	assert_eq!(spr.get_next(), Err(SpamReaderError::ToleranceExceeded));
 	assert_eq!(spr.get_next(), Err(SpamReaderError::ToleranceExceeded));
@@ -33,12 +33,13 @@ fn queries_after_tolerance_exceeded_result_in_tolerance_exceeded_err() {
 
 #[test]
 fn reader_with_slice_of_more_than_tolerance_returns_err() {
-	let buf = "qqq   qwe  qwee ".as_bytes();
+	let buf = "qqq   qwe  qwee qqqwww".as_bytes();
 	let mut spr = SpamTolerantReader::new(buf, b' ', NonZeroUsize::new(4).unwrap());
 	assert_eq!(spr.get_next(), Ok("qqq".as_bytes()));
 	assert_eq!(spr.get_next(), Ok(EMPTY_SLICE));
 	assert_eq!(spr.get_next(), Ok(EMPTY_SLICE));
 	assert_eq!(spr.get_next(), Ok("qwe".as_bytes()));
 	assert_eq!(spr.get_next(), Ok(EMPTY_SLICE));
+	assert_eq!(spr.get_next(), Ok("qwee".as_bytes()));
 	assert_eq!(spr.get_next(), Err(SpamReaderError::ToleranceExceeded));
 }

@@ -2,7 +2,7 @@ use std::io::{BufRead, BufReader, Read};
 use std::num::NonZeroUsize;
 
 //nightly feature 😞
-//use std::str::pattern::Pattern;
+//use std::str::pattern::Pattern; for delimiter
 
 //this does not adhere to Iterator trait of BufRead/Read traits for speed of implementation
 //so the adaptor patternt is not fully realised 😞
@@ -61,7 +61,7 @@ impl<T: Read> SpamTolerantReader<T> {
 			return Err(ErrorKind::EOFReached);
 		}
 		self.aux.clear();
-		if let Some(n) = find_delimiter_in_buf(buf, self.aux.capacity(), self.delim) {
+		if let Some(n) = find_delimiter_in_buf(buf, self.aux.capacity() + 1, self.delim) {
 			self.aux.extend_from_slice(&buf[..n]);
 			self.reader.consume(n + 1);
 			Ok(&self.aux)
@@ -79,7 +79,7 @@ impl<T: Read> SpamTolerantReader<T> {
 					return Ok(&self.aux);
 				}
 				if let Some(n) =
-					find_delimiter_in_buf(buf, self.aux.capacity() - self.aux.len(), self.delim)
+					find_delimiter_in_buf(buf, self.aux.capacity() - self.aux.len() + 1, self.delim)
 				{
 					self.aux.extend_from_slice(&buf[..n]);
 					self.reader.consume(n + 1);
