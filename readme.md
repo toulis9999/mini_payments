@@ -1,5 +1,4 @@
-# mini-Paymens
-## _The Last Markdown Editor, Ever_
+## mini-Payments
 
 mini-payments is a toy project simulating a payments service
 which accepts and processes payment transactions such as
